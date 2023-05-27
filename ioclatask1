@@ -1,0 +1,149 @@
+%include "../include/io.mac"
+section .data
+	; declare global vars here
+	extern printf
+	extern strchr
+
+section .text
+	global reverse_vowels
+	vowels db 'aeiou'
+
+;;	void reverse_vowels(char *string)
+;	Cauta toate vocalele din string-ul `string` si afiseaza-le
+;	in ordine inversa. Consoanele raman nemodificate.
+;	Modificare se va face in-place
+reverse_vowels:
+ ;push ebp
+ ;push esp
+; pop ebp
+ ;pop esp
+ ;mov ebp, esp
+ ;pop esp
+ ;enter 0,0
+ push ebp ;liniile 23-26 echivalente cu enter 0,0
+ push esp
+ pop ebp
+;mov ebp, esp
+sub esp, 0 ; daca nu fac frame-ul gol imi pica test 5 si 20
+ push dword [ebp + 8]
+ 
+ pop edi
+ ;pop esi
+ ;printf %c byte[esi]
+ ;mov al, byte [edi]
+  ;PRINTF32 `%c\n\x0`, eax
+ ;numar vocalele
+  xor ecx, ecx
+  ;push edi
+  ;mai intai numar lungimea sir
+ push edi
+ loop1_count:
+	push edi
+	pop eax
+	cmp byte [eax], 0
+	je end
+	;PRINTF32 `%c\n\x0`, [edi] ;-- afiseaza ce trb
+	inc edi
+	inc ecx
+	jmp loop1_count
+
+end:
+  pop edi
+  PRINTF32 `%d\n\x0`, ecx
+  push ecx
+  pop esi
+; acum pushez vocalele
+  xor ecx, ecx
+  ;push edi 
+  xor eax, eax
+pushez_vocale:
+    push dword [edi]
+	pop edx
+   ;PRINTF32 `before %c\n\x0`,edx
+	cmp edx, 0
+	je end2
+	push ecx ; salvez ecx
+	push edx
+
+	;and eax, 0xFF000000
+	;PRINTF32 `after %c\n\x0`,  eax 
+	push edx ; arg pt strchr
+	push vowels
+	call strchr
+	add esp, 8  ; nt sure
+	;pop edx
+	pop edx
+	pop ecx
+	;PRINTF32 `%d\n\x0`, eax 
+	cmp eax, 0
+	jz nu_e_vocala
+	inc ecx ; nr vocalele
+	;PRINTF32 `nr vocale : %d\n\x0`, ecx 
+	push edx
+	;verificare
+	;pop eax
+	;and al, 0xFF
+
+nu_e_vocala:
+    ;PRINTF32 `din nu e voc %c\n\x0`, edx 
+	inc edi
+	jmp pushez_vocale
+
+end2:
+ ;pop eax
+ ;PRINTF32 `final %c\n\x0`,eax
+ ;pop eax
+ ;PRINTF32 `final %c\n\x0`,eax
+ ;PRINTF32 `finaledi %c\n\x0`,byte [edi - 1] ;da e la final
+ ; o sa ma repozitionez pe primul ch
+ ;inc esi ; includ si terminatorul--nu face asta
+ sub edi, esi ; perfect
+ ;PRINTF32 `finaledi %c\n\x0`,byte [edi] 
+ ; o sa ma folosesc de nr de vocale ---nr de popuri
+ ;la naiba iarasi iterez
+ inlocuiesc_vocale:
+	cmp ecx, 0
+	je end3
+	push dword [edi]
+	pop eax
+	cmp eax, 0
+	je end3
+    ;PRINTF32 `inloc %c\n\x0`,eax
+	push eax
+	push ecx
+
+	push eax
+	push vowels
+	call strchr
+	add esp,8
+    
+	pop ecx
+
+	cmp eax, 0 ; nu agsit
+	jne e_vocala
+	pop eax
+	inc edi
+	jmp inlocuiesc_vocale
+	
+e_vocala:
+	pop eax ; ch curent
+	;PRINTF32 `e vocala chr curent %c\n\x0`,eax
+	and byte [edi], 0 ; scot acel caracter din existenta
+	pop eax
+	;PRINTF32 `e vocala chr dupa pop2 %c\n\x0`,eax
+	or byte [edi], al
+	inc edi
+	dec ecx
+	jmp inlocuiesc_vocale
+
+
+
+end3:
+   ;pop esp
+
+  ;leave
+  push ebp  ; liniile 145 - 148 echivalente cu leave
+  pop esp
+  ;mov esp,ebp
+	pop ebp
+	ret
